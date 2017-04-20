@@ -2,7 +2,7 @@
 #define HEAPSORT
 
 #include <functional>
-
+#include <assert.h>
 
 template <class T>
 class HeapSort
@@ -118,7 +118,16 @@ public:
 				swap(start, childL(start));
 		}
 	}
+
+	friend void testHeapSort();
 };
+
+
+void testHeapSort()
+{
+	int arr[10] = {4,2,1,5,7,9,3,8,0,6};
+	HeapSort<int> hs(arr, 10); // Uses default key function.
+}
 
 
 #endif // HEAPSORT
