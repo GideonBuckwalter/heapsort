@@ -33,6 +33,22 @@ private:
 	bool isLeaf(T* ptr)
 	{ return !hasChildL(ptr); }
 
+	void swap(T* a, T* b)
+	{
+		T temp = *a;
+		*a = *b;
+		*b = temp;
+	}
+
+	T* max(T* a, T* b, T* c)
+	{
+		if (key(*a) > key(*b) && key(*a) > key(*c))
+			return a;
+		if (key(*b) > key(*a) && key(*b) > key(*c))
+			return b;
+		return c;
+	}
+
 
 public:
 	// Main heapsort function: constructor.
@@ -41,6 +57,14 @@ public:
 		this->head = array
 		this->size = size;
 		this->key = key;
+	}
+
+	// If you don't specify a key function, a default will be used.
+	HeapSort(T array[], int size)
+	{
+		this->head = array;
+		this->size = size;
+		this->key = [] (T value) { return static_cast<double>(value); };
 	}
 
 	// Use this function to actually perform the heapsort.
@@ -60,9 +84,39 @@ public:
 
 	}
 
-	void percolateDown(T* start, T* end)
+	void percolateUp(T* end)
 	{
+		// Base case.
+		if (!hasParent(end))
+			return;
 
+		if (key(*end) > key(*parent(end)))
+		{
+			swap(end, parent(end));
+			percolateUp(parent(end));
+		}
+	}
+
+	void percolateDown(T* start)
+	{
+		// Base case.
+		if (isLeaf(start))
+			return;
+
+		if (hasChildR(start)) // Has two children
+		{
+			T* m = max(start, childL(start), childR(start));
+			if (key(*m) != key(*start))
+			{
+				swap(start, m);
+				percolateDown(m);
+			}
+		}
+		else // Node has only a left child.
+		{
+			if (key(*start) < key(*childL(start)))
+				swap(start, childL(start));
+		}
 	}
 };
 
