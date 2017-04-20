@@ -34,10 +34,8 @@ private:
 	{ return !hasChildL(ptr); }
 
 
-
-	// MAIN FUNCTIONS //
-
-	// Main heapsort function.
+public:
+	// Main heapsort function: constructor.
 	HeapSort(T array[], int size, std::function<double (T)> key)
 	{
 		this->head = array
@@ -45,6 +43,7 @@ private:
 		this->key = key;
 	}
 
+	// Use this function to actually perform the heapsort.
 	void go()
 	{
 		heapify();
