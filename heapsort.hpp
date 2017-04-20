@@ -1,27 +1,42 @@
 #ifndef HEAPSORT
 #define HEAPSORT
 
-// Define a type alias for a key function.
-// Takes an object of type T and returns a double.
-template <class T>
-typedef std::function<double (T)> KeyFunc
+#include <functional>
 
-// User-friendly heapsort function.
+
+
+// HELPER FUNCTIONS //
+
+int parent(int i) { return (i + 1)/2; }
+int childL(int i) { return (i + 1)*2; }
+int childR(int i) { return (i + 1)*2 + 1; }
+
+bool hasChildL(int i, int size) { return childL(i) < size; }
+bool hasChildR(int i, int size) { return childR(i) < size; }
+
+bool isLeaf(int i, int size)
+{ return !hasChildL(i, size) && !hasChildR(i, size); } // Simplification?
+
+
+
+// MAIN FUNCTIONS //
+
+// Main heapsort function.
 template <class T>
-void heapsort(T arr[], int size, KeyFunc key)
+void heapsort(T arr[], int size, std::function<double (T)> key)
 {
 	heapify(arr, size, key);
-	extract_all(arr, size, key);
+	extractAll(arr, size, key);
 }
 
 template <class T>
-void heapify(T arr[], int size, KeyFunc key)
+void heapify(T arr[], int size, std::function<double (T)> key)
 {
 
 }
 
 template <class T>
-void extract_all(T heap[], int size, KeyFunc key)
+void extractAll(T heap[], int size, std::function<double (T)> key)
 {
 
 }
