@@ -4,6 +4,8 @@
 #include <functional>
 #include <iomanip>
 #include <assert.h>
+#include <cstdlib>	// rand, srand
+#include <ctime>	// time
 
 template <class T>
 class HeapSort
@@ -48,9 +50,9 @@ private:
 
 	T* max(T* a, T* b, T* c)
 	{
-		if (key(*a) > key(*b) && key(*a) > key(*c))
+		if (key(*a) >= key(*b) && key(*a) >= key(*c))
 			return a;
-		if (key(*b) > key(*a) && key(*b) > key(*c))
+		if (key(*b) >= key(*a) && key(*b) >= key(*c))
 			return b;
 		return c;
 	}
@@ -65,6 +67,22 @@ private:
 		printNode(childR(node), out, indent+4);
 		out << std::setw(indent) << *node << std::endl;
 		printNode(childL(node), out, indent+4);
+	}
+
+	bool upholdsHeapOrderProperty(T* subheap)
+	{
+		if (isLeaf(subheap))
+			return true;
+
+		if (!isValidNode(childR(subheap)))
+			// We know it's not a leaf, so must have left child.
+			return key(*subheap) >= key(*childL(subheap));
+
+
+		return key(*subheap) >= key(*childL(subheap)) &&
+			   key(*subheap) >= key(*childR(subheap)) &&
+			   upholdsHeapOrderProperty(childL(subheap)) &&
+			   upholdsHeapOrderProperty(childR(subheap));
 	}
 
 
@@ -152,40 +170,86 @@ public:
 		printNode(head, out, 0);
 	}
 
+	bool isSorted()
+	{
+		for (int i = 1; i < size; i++)
+			if (key(head[i - 1]) > key(head[i]))
+			{
+				std::cout << "Not ascending!" << std::endl;
+				std::cout << "\thead[" << i-1 << "]=" << head[i-1] << std::endl;
+				std::cout << "\thead[" << i   << "]=" << head[i]   << std::endl;
+				return false;
+			}
+		return true;
+	}
+
+	bool upholdsHeapOrderProperty()
+	{
+		return upholdsHeapOrderProperty(head);
+	}
+
 	friend void testHeapSort();
 };
 
 
 void testHeapSort()
 {
-	int arr[10] = {4,2,1,5,7,9,3,8,0,6};
-	HeapSort<int> hs(arr, 10); // Uses default key function.
+	/*
+	{
+		int arr[10] = {4,2,1,5,7,9,3,8,0,6};
+		HeapSort<int> hs(arr, 10); // Uses default key function.
 
-	hs.print(std::cout);
-	hs.percolateDown(hs.head);
-	std::cout << std::endl;
-	hs.print(std::cout);
+		std::cout << "Initial Array:" << std::endl;
+		for (int x : arr)
+			std::cout << x << " ";
+		std::cout << std::endl;
 
-	std::cout << std::endl << std::endl << std::endl;
-	hs.percolateUp(hs.head + 4);
-	hs.print(std::cout);
+		std::cout << std::endl;
+		std::cout << "Initial Heap:" << std::endl;
+		hs.print(std::cout);
 
-	std::cout << std::endl << std::endl << std::endl;
-	hs.percolateUp(hs.head + 7);
-	hs.print(std::cout);
+		std::cout << std::endl;
+		std::cout << "Heapify:" << std::endl;
+		hs.heapify();
+		hs.print(std::cout);
 
-	std::cout << std::endl << std::endl << std::endl;
-	hs.heapify();
-	hs.print(std::cout);
+		std::cout << std::endl;
+		std::cout << "Extract All:" << std::endl;
+		hs.extractAll();
+		hs.print(std::cout);
 
-	std::cout << std::endl << std::endl << std::endl;
-	hs.extractAll();
-	hs.print(std::cout);
+		std::cout << std::endl;
+		std::cout << "Final Array:" << std::endl;
+		for (int x : arr)
+			std::cout << x << " ";
+		std::cout << std::endl;
 
-	std::cout << std::endl << std::endl << std::endl;
-	for (int x : arr)
-		std::cout << x << " ";
-	std::cout << std::endl;
+		assert(hs.isSorted());
+	}
+	*/
+
+	{
+		srand(time(0));
+
+		const int SIZE = 100000;
+		int arr[SIZE];
+
+		for (int i = 0; i < SIZE; i++)
+			arr[i] = rand() % (1*SIZE);
+
+
+		HeapSort<int> heap(arr, SIZE);
+
+		// Record time taken.
+		std::clock_t t0 = std::clock();
+		heap.go();
+		std::clock_t dt = (std::clock() - t0) / (double)(CLOCKS_PER_SEC / 1000);
+
+		std::cout << std::endl;
+		std::cout << "Time taken to sort " << SIZE << " integers: "
+				  << dt << "ms" << std::endl;
+		assert(heap.isSorted());
+	}
 
 }
 
