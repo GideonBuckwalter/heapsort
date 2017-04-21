@@ -19,6 +19,9 @@ private:
 	// If ptr == head, return 0
 	int index(T* ptr) { return static_cast<int>(ptr - head); }
 
+	// Returns a pointer to the last array element.
+	T* last() { return head + size - 1; }
+
 	// Return pointers to parents and children of given pointers.
 	T* parent(T* ptr) { return head + (index(ptr) - 1)/2; }
 	T* childL(T* ptr) { return head + index(ptr)*2 + 1; }
@@ -91,12 +94,22 @@ public:
 
 	void heapify()
 	{
-
+		for (T* ptr = parent(last()); isValidNode(ptr); ptr--)
+			percolateDown(ptr);
 	}
 
 	void extractAll()
 	{
+		int SIZE = size; // Save the original size.
+		for (int i = 0; i < SIZE-1; i++)
+		{
+			swap(head, last());
+			size--; // Make heap think size has changed.
+			percolateDown(head);
+		}
 
+		// Make heap remember what the ACTUAL size is.
+		size = SIZE;
 	}
 
 	void percolateUp(T* end)
@@ -120,11 +133,11 @@ public:
 
 		if (hasChildR(start)) // Has two children
 		{
-			T* m = max(start, childL(start), childR(start));
-			if (key(*m) != key(*start))
+			T* big = max(start, childL(start), childR(start));
+			if (key(*big) != key(*start))
 			{
-				swap(start, m);
-				percolateDown(m);
+				swap(start, big);
+				percolateDown(big);
 			}
 		}
 		else // Node has only a left child.
@@ -149,6 +162,31 @@ void testHeapSort()
 	HeapSort<int> hs(arr, 10); // Uses default key function.
 
 	hs.print(std::cout);
+	hs.percolateDown(hs.head);
+	std::cout << std::endl;
+	hs.print(std::cout);
+
+	std::cout << std::endl << std::endl << std::endl;
+	hs.percolateUp(hs.head + 4);
+	hs.print(std::cout);
+
+	std::cout << std::endl << std::endl << std::endl;
+	hs.percolateUp(hs.head + 7);
+	hs.print(std::cout);
+
+	std::cout << std::endl << std::endl << std::endl;
+	hs.heapify();
+	hs.print(std::cout);
+
+	std::cout << std::endl << std::endl << std::endl;
+	hs.extractAll();
+	hs.print(std::cout);
+
+	std::cout << std::endl << std::endl << std::endl;
+	for (int x : arr)
+		std::cout << x << " ";
+	std::cout << std::endl;
+
 }
 
 
