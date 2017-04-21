@@ -2,6 +2,7 @@
 #define HEAPSORT
 
 #include <functional>
+#include <iomanip>
 #include <assert.h>
 
 template <class T>
@@ -23,10 +24,12 @@ private:
 	T* childL(T* ptr) { return head + index(ptr)*2 + 1; }
 	T* childR(T* ptr) { return head + index(ptr)*2 + 2; }
 
+	bool isValidNode(T* ptr) { return ptr < head + size && ptr >= head; }
+
 	// Check for existence of children/parents of a given pointer.
-	bool hasParent(T* ptr) { return parent(ptr) > head; }
-	bool hasChildL(T* ptr) { return childL(ptr) <= head + size; }
-	bool hasChildR(T* ptr) { return childR(ptr) <= head + size; }
+	bool hasParent(T* ptr) { return isValidNode(parent(ptr)); }
+	bool hasChildL(T* ptr) { return isValidNode(childL(ptr)); }
+	bool hasChildR(T* ptr) { return isValidNode(childR(ptr)); }
 
 	// Tests if a given pointer points to a leaf node.
 	// NOTE: If node had no left node, it cannot have a right node either.
@@ -49,12 +52,24 @@ private:
 		return c;
 	}
 
+	void printNode(T* node, std::ostream& out, int indent)
+	{
+		// Base case.
+		if (!isValidNode(node))
+			return;
+
+		// Right-Node-Left traversal, printed sideways.
+		printNode(childR(node), out, indent+4);
+		out << std::setw(indent) << *node << std::endl;
+		printNode(childL(node), out, indent+4);
+	}
+
 
 public:
 	// Main heapsort function: constructor.
 	HeapSort(T array[], int size, std::function<double (T)> key)
 	{
-		this->head = array
+		this->head = array;
 		this->size = size;
 		this->key = key;
 	}
@@ -119,6 +134,11 @@ public:
 		}
 	}
 
+	void print(std::ostream& out)
+	{
+		printNode(head, out, 0);
+	}
+
 	friend void testHeapSort();
 };
 
@@ -127,6 +147,8 @@ void testHeapSort()
 {
 	int arr[10] = {4,2,1,5,7,9,3,8,0,6};
 	HeapSort<int> hs(arr, 10); // Uses default key function.
+
+	hs.print(std::cout);
 }
 
 
