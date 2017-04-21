@@ -1,0 +1,7 @@
+# Ignore these files when adding and committing:
+
+
+# Compiled Executables
+*.exe
+*.o
+*.class
