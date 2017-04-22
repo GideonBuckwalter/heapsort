@@ -7,8 +7,8 @@
 #include <cstdlib>	// rand, srand
 #include <ctime>	// time
 
-template <class T>
-class HeapSort
+template <class T, class K>
+class Heap
 {
 private:
 	T* head;
@@ -88,22 +88,22 @@ private:
 
 public:
 
-	static void sort(T array[], int size, std::function<double (T)> key)
+	static void sort(T array[], int size, std::function<K (T)> key)
 	{
 		// Create a local instance.
 		// User doesn't need to manage this instance.
-		HeapSort heap(array, size, key);
+		Heap heap(array, size, key);
 		heap.heapify();
 		heap.extractAll();
 	}
 
 	static void sort(T array[], int size)
 	{
-		HeapSort::sort(array, size, [](T x){ return static_cast<double>(x); });
+		Heap::sort(array, size, [](T x){ return static_cast<K>(x); });
 	}
 
 	// Main heapsort function: constructor.
-	HeapSort(T array[], int size, std::function<double (T)> key)
+	Heap(T array[], int size, std::function<K (T)> key)
 	{
 		this->head = array;
 		this->size = size;
@@ -111,11 +111,11 @@ public:
 	}
 
 	// If you don't specify a key function, a default will be used.
-	HeapSort(T array[], int size)
+	Heap(T array[], int size)
 	{
 		this->head = array;
 		this->size = size;
-		this->key = [] (T value) { return static_cast<double>(value); };
+		this->key = [] (T value) { return static_cast<K>(value); };
 	}
 
 	// Use this function to actually perform the heapsort.
@@ -211,7 +211,7 @@ void testHeapSort()
 {
 	{
 		int arr[10] = {4,2,1,5,7,9,3,8,0,6};
-		HeapSort<int> hs(arr, 10); // Uses default key function.
+		Heap<int, int> hs(arr, 10); // Uses default key function.
 
 		std::cout << "Initial Array:" << std::endl;
 		for (int x : arr)
@@ -252,7 +252,7 @@ void testHeapSort()
 			arr[i] = rand() % (1*SIZE);
 
 
-		HeapSort<int> heap(arr, SIZE);
+		Heap<int, int> heap(arr, SIZE);
 
 		// Record time taken.
 		std::clock_t t0 = std::clock();
@@ -269,7 +269,7 @@ void testHeapSort()
 		// Test static sort method.
 		const int SIZE = 10;
 		int array[SIZE] = {321,53,75,144,769,3134,806,28,584,128};
-		HeapSort<int>::sort(array, SIZE, [](int x){ return static_cast<double>(x); });
+		Heap<int, int>::sort(array, SIZE, [](int x){ return static_cast<double>(x); });
 		for (int i = 1; i < SIZE; i++)
 			assert(array[i-1] <= array[i]);
 	}
@@ -278,7 +278,7 @@ void testHeapSort()
 		// Test overloaded static sort method.
 		const int SIZE = 10;
 		int array[SIZE] = {321,53,75,144,769,3134,806,28,584,128};
-		HeapSort<int>::sort(array, SIZE);
+		Heap<int, int>::sort(array, SIZE);
 		for (int i = 1; i < SIZE; i++)
 			assert(array[i-1] <= array[i]);
 	}
