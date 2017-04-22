@@ -87,6 +87,16 @@ private:
 
 
 public:
+
+	static void sort(T array[], int size, std::function<double (T)> key)
+	{
+		// Create a local instance.
+		// User doesn't need to manage this instance.
+		HeapSort heap(array, size, key);
+		heap.heapify();
+		heap.extractAll();
+	}
+
 	// Main heapsort function: constructor.
 	HeapSort(T array[], int size, std::function<double (T)> key)
 	{
@@ -194,7 +204,6 @@ public:
 
 void testHeapSort()
 {
-	/*
 	{
 		int arr[10] = {4,2,1,5,7,9,3,8,0,6};
 		HeapSort<int> hs(arr, 10); // Uses default key function.
@@ -211,6 +220,7 @@ void testHeapSort()
 		std::cout << std::endl;
 		std::cout << "Heapify:" << std::endl;
 		hs.heapify();
+		assert(hs.upholdsHeapOrderProperty());
 		hs.print(std::cout);
 
 		std::cout << std::endl;
@@ -226,7 +236,6 @@ void testHeapSort()
 
 		assert(hs.isSorted());
 	}
-	*/
 
 	{
 		srand(time(0));
