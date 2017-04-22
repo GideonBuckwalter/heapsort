@@ -7,6 +7,29 @@
 #include <cstdlib>	// rand, srand
 #include <ctime>	// time
 
+
+/*
+ * This class implements heapsort on a given array. Use the static Heap::sort
+ * function to perform heapsort. Pass the array you'd like to sort, its size,
+ * and optionally a key function by which to compare elements.
+ * The T and K type parameters allow you to specify both the type stored in
+ * the array and the type you will be using to sort by.
+ * EXAMPLE:
+ * struct Box
+ * {
+ * 	    int volume;
+ *      string contents;
+ * };
+ * 
+ * const int SIZE = 100;
+ * Box array[SIZE] = { SOME INITIALIZER LIST HERE };
+ *
+ * Heap<Box, string>::sort(array, SIZE, [](Box b){ return b.contents; });
+ *
+ */
+
+
+
 template <class T, class K>
 class Heap
 {
