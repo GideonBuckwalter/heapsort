@@ -97,6 +97,11 @@ public:
 		heap.extractAll();
 	}
 
+	static void sort(T array[], int size)
+	{
+		HeapSort::sort(array, size, [](T x){ return static_cast<double>(x); });
+	}
+
 	// Main heapsort function: constructor.
 	HeapSort(T array[], int size, std::function<double (T)> key)
 	{
@@ -261,9 +266,19 @@ void testHeapSort()
 	}
 
 	{
+		// Test static sort method.
 		const int SIZE = 10;
 		int array[SIZE] = {321,53,75,144,769,3134,806,28,584,128};
 		HeapSort<int>::sort(array, SIZE, [](int x){ return static_cast<double>(x); });
+		for (int i = 1; i < SIZE; i++)
+			assert(array[i-1] <= array[i]);
+	}
+
+	{
+		// Test overloaded static sort method.
+		const int SIZE = 10;
+		int array[SIZE] = {321,53,75,144,769,3134,806,28,584,128};
+		HeapSort<int>::sort(array, SIZE);
 		for (int i = 1; i < SIZE; i++)
 			assert(array[i-1] <= array[i]);
 	}
