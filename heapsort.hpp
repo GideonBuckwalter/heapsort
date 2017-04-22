@@ -260,6 +260,14 @@ void testHeapSort()
 		assert(heap.isSorted());
 	}
 
+	{
+		const int SIZE = 10;
+		int array[SIZE] = {321,53,75,144,769,3134,806,28,584,128};
+		HeapSort<int>::sort(array, SIZE, [](int x){ return static_cast<double>(x); });
+		for (int i = 1; i < SIZE; i++)
+			assert(array[i-1] <= array[i]);
+	}
+
 }
 
 
