@@ -33,6 +33,23 @@
 template <class T, class K>
 class Heap
 {
+public:
+
+	static void sort(T array[], int size, std::function<K (T)> key)
+	{
+		// Create a local instance.
+		// User doesn't need to manage this instance.
+		Heap heap(array, size, key);
+		heap.heapify();
+		heap.extractAll();
+	}
+
+	static void sort(T array[], int size)
+	{
+		Heap::sort(array, size, [](T x){ return static_cast<K>(x); });
+	}
+
+
 private:
 	T* head;
 	int size;
@@ -106,23 +123,6 @@ private:
 			   key(*subheap) >= key(*childR(subheap)) &&
 			   upholdsHeapOrderProperty(childL(subheap)) &&
 			   upholdsHeapOrderProperty(childR(subheap));
-	}
-
-
-public:
-
-	static void sort(T array[], int size, std::function<K (T)> key)
-	{
-		// Create a local instance.
-		// User doesn't need to manage this instance.
-		Heap heap(array, size, key);
-		heap.heapify();
-		heap.extractAll();
-	}
-
-	static void sort(T array[], int size)
-	{
-		Heap::sort(array, size, [](T x){ return static_cast<K>(x); });
 	}
 
 	// Main heapsort function: constructor.
