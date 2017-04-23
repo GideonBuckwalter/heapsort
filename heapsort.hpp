@@ -14,7 +14,9 @@
  * and optionally a key function by which to compare elements.
  * The T and K type parameters allow you to specify both the type stored in
  * the array and the type you will be using to sort by.
+ *
  * EXAMPLE:
+ *
  * struct Box
  * {
  * 	    int volume;
@@ -29,24 +31,59 @@
  */
 
 
-
 template <class T, class K>
 class Heap
 {
 public:
 
+	// These static functions are the class's public interface.
+	// I've made everything else private because it doesn't make
+	// sense to have the user manage Heap instances which can't
+	// insert or remove (you'd need to use vectors instead of
+	// arrays if you wanted that).
+
 	static void sort(T array[], int size, std::function<K (T)> key)
 	{
 		// Create a local instance.
-		// User doesn't need to manage this instance.
 		Heap heap(array, size, key);
-		heap.heapify();
-		heap.extractAll();
+		heap._heapify();
+		heap._extract();
 	}
 
 	static void sort(T array[], int size)
 	{
 		Heap::sort(array, size, [](T x){ return static_cast<K>(x); });
+	}
+
+	static void heapify(T array[], int size, std::function<K (T)> key)
+	{
+		// Create a local instance.
+		Heap heap(array, size, key);
+		heap._heapify();
+	}
+
+	static void heapify(T array[], int size)
+	{
+		Heap::heapify(array, size, [](T x){ return static_cast<K>(x); });
+	}
+
+	static void extract(T array[], int size, std::function<K (T)> key)
+	{
+		// Create a local instance.
+		Heap heap(array, size, key);
+		heap._extract();
+	}
+
+	static void extract(T array[], int size)
+	{
+		Heap::extract(array, size, [](T x){ return static_cast<K>(x); });
+	}
+
+	static void print(T array[], int size, std::ostream& out)
+	{
+		// Create a local instance.
+		Heap heap(array, size);
+		heap._print(out);
 	}
 
 
@@ -104,9 +141,9 @@ private:
 			return;
 
 		// Right-Node-Left traversal, printed sideways.
-		printNode(childR(node), out, indent+4);
+		printNode(childR(node), out, indent+6);
 		out << std::setw(indent) << *node << std::endl;
-		printNode(childL(node), out, indent+4);
+		printNode(childL(node), out, indent+6);
 	}
 
 	bool upholdsHeapOrderProperty(T* subheap)
@@ -125,6 +162,9 @@ private:
 			   upholdsHeapOrderProperty(childR(subheap));
 	}
 
+
+	// INSTANCE FUNCTIONS //
+
 	// Main heapsort function: constructor.
 	Heap(T array[], int size, std::function<K (T)> key)
 	{
@@ -141,20 +181,16 @@ private:
 		this->key = [] (T value) { return static_cast<K>(value); };
 	}
 
-	// Use this function to actually perform the heapsort.
-	void go()
-	{
-		heapify();
-		extractAll();
-	}
-
-	void heapify()
+	// Turns an unordered list into a heap.
+	void _heapify()
 	{
 		for (T* ptr = parent(last()); isValidNode(ptr); ptr--)
 			percolateDown(ptr);
 	}
 
-	void extractAll()
+	// Extracts top element from a heap and places it at end of list.
+	// After running _extract on a heapified list, the list will be sorted.
+	void _extract()
 	{
 		int SIZE = size; // Save the original size.
 		for (int i = 0; i < SIZE-1; i++)
@@ -203,7 +239,7 @@ private:
 		}
 	}
 
-	void print(std::ostream& out)
+	void _print(std::ostream& out)
 	{
 		printNode(head, out, 0);
 	}
@@ -226,41 +262,55 @@ private:
 		return upholdsHeapOrderProperty(head);
 	}
 
-	friend void testHeapSort();
+	friend void testHeapSort(bool verbose);
 };
 
 
-void testHeapSort()
+void testHeapSort(bool verbose)
 {
 	{
 		int arr[10] = {4,2,1,5,7,9,3,8,0,6};
 		Heap<int, int> hs(arr, 10); // Uses default key function.
 
-		std::cout << "Initial Array:" << std::endl;
-		for (int x : arr)
-			std::cout << x << " ";
-		std::cout << std::endl;
 
-		std::cout << std::endl;
-		std::cout << "Initial Heap:" << std::endl;
-		hs.print(std::cout);
+		if (verbose)
+		{
+			std::cout << "Initial Array:" << std::endl;
+			for (int x : arr)
+				std::cout << x << " ";
+			std::cout << std::endl;
 
-		std::cout << std::endl;
-		std::cout << "Heapify:" << std::endl;
-		hs.heapify();
+			std::cout << std::endl;
+			std::cout << "Initial Heap:" << std::endl;
+			hs._print(std::cout);
+
+			std::cout << std::endl;
+			std::cout << "Heapify:" << std::endl;
+		}
+
+		hs._heapify();
 		assert(hs.upholdsHeapOrderProperty());
-		hs.print(std::cout);
+		
+		if (verbose)
+		{
+			hs._print(std::cout);
 
-		std::cout << std::endl;
-		std::cout << "Extract All:" << std::endl;
-		hs.extractAll();
-		hs.print(std::cout);
+			std::cout << std::endl;
+			std::cout << "Extract All:" << std::endl;
+		}
+		
+		hs._extract();
 
-		std::cout << std::endl;
-		std::cout << "Final Array:" << std::endl;
-		for (int x : arr)
-			std::cout << x << " ";
-		std::cout << std::endl;
+		if (verbose)
+		{
+			hs._print(std::cout);
+
+			std::cout << std::endl;
+			std::cout << "Final Array:" << std::endl;
+			for (int x : arr)
+				std::cout << x << " ";
+			std::cout << std::endl;
+		}
 
 		assert(hs.isSorted());
 	}
@@ -279,12 +329,16 @@ void testHeapSort()
 
 		// Record time taken.
 		std::clock_t t0 = std::clock();
-		heap.go();
+		heap._heapify();
+		heap._extract();
 		std::clock_t dt = (std::clock() - t0) / (double)(CLOCKS_PER_SEC / 1000);
 
-		std::cout << std::endl;
-		std::cout << "Time taken to sort " << SIZE << " integers: "
-				  << dt << "ms" << std::endl;
+		if (verbose)
+		{
+			std::cout << std::endl;
+			std::cout << "Time taken to sort " << SIZE << " integers: "
+					  << dt << "ms" << std::endl;
+		}
 		assert(heap.isSorted());
 	}
 
@@ -305,7 +359,6 @@ void testHeapSort()
 		for (int i = 1; i < SIZE; i++)
 			assert(array[i-1] <= array[i]);
 	}
-
 }
 
 
